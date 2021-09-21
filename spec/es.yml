@@ -42,7 +42,7 @@ spec:
                 path: elasticsearch.yml
         - name: persistent-storage
           persistentVolumeClaim:
-            claimName: es-claim
+            claimName: ebs-claim
       initContainers:
         - name: permissions-fix
           image: busybox
@@ -56,7 +56,7 @@ spec:
           image: elasticsearch:7.10.1
           resources:
             requests:
-              cpu: 4
+              cpu: 2
               memory: 8Gi
           ports:
             - name: http
