@@ -1,181 +1,49 @@
-apiVersion: v1
-kind: ConfigMap
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
 metadata:
-  name: es-config-0
-data:
-  elasticsearch.yml: |
-    cluster.name: elk-cluster
-    network.host: "0.0.0.0"
-    bootstrap.memory_lock: false
-    node.name: master
-    node.master: true
-    node.data: false
-    cluster.initial_master_nodes:
-      # - es-entrypoint-0.default.svc.cluster.local
-      - es-0
-    discovery.seed_hosts:
-      # - es-entrypoint-0.default.svc.cluster.local:9200
-      # - es-entrypoint-1.default.svc.cluster.local:9200
-      - es-1
-  ES_JAVA_OPTS: -Xms2g -Xmx2g
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: es-0
-  namespace: default
+  name: elk
 spec:
-  serviceName: es-entrypoint
-  selector:
-    matchLabels:
-      name: es-0
-  volumeClaimTemplates:
-  - metadata:
-      name: ebs-claim
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      storageClassName: ebs-sc
-      resources:
-        requests:
-          storage: 1024Gi
-  template:
-    metadata:
-      labels:
-        name: es-0
-    spec:
-      volumes:
-        - name: es-config-0
-          configMap:
-            name: es-config-0
-            items:
-              - key: elasticsearch.yml
-                path: elasticsearch.yml
-      initContainers:
-        - name: permissions-fix
-          image: busybox
-          volumeMounts:
-            - name: ebs-claim
-              mountPath: /usr/share/elasticsearch/data
-          command: [ 'chown' ]
-          args: [ '1000:1000', '/usr/share/elasticsearch/data' ]
-      containers:
-        - name: es-0
-          image: elasticsearch:7.14.1
-          resources:
-            requests:
-              cpu: 0.5
-              memory: 2Gi
-          ports:
-            - name: http
-              containerPort: 9200
-            - containerPort: 9300
-              name: inter-node
-          volumeMounts:
-            - name: es-config-0
-              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-              subPath: elasticsearch.yml
-            - name: ebs-claim
-              mountPath: /usr/share/elasticsearch/data
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: es-config-1
-data:
-  elasticsearch.yml: |
-    cluster.name: elk-cluster
-    network.host: "0.0.0.0"
-    bootstrap.memory_lock: false
-    node.name: worker
-    node.master: false
-    node.data: true
-    discovery.seed_hosts:
-      - es-0
-      - es-1
-  ES_JAVA_OPTS: -Xms2g -Xmx2g
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: es-1
-  namespace: default
-spec:
-  serviceName: es-entrypoint
-  selector:
-    matchLabels:
-      name: es-1
-  volumeClaimTemplates:
-  - metadata:
-      name: ebs-claim
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      storageClassName: ebs-sc
-      resources:
-        requests:
-          storage: 1024Gi
-  template:
-    metadata:
-      labels:
-        name: es-1
-    spec:
-      volumes:
-        - name: es-config-1
-          configMap:
-            name: es-config-1
-            items:
-              - key: elasticsearch.yml
-                path: elasticsearch.yml
-      initContainers:
-        - name: permissions-fix
-          image: busybox
-          volumeMounts:
-            - name: ebs-claim
-              mountPath: /usr/share/elasticsearch/data
-          command: [ 'chown' ]
-          args: [ '1000:1000', '/usr/share/elasticsearch/data' ]
-      containers:
-        - name: es-1
-          image: elasticsearch:7.14.1
-          resources:
-            requests:
-              cpu: 0.5
-              memory: 2Gi
-          ports:
-            - name: http
-              containerPort: 9200
-            - containerPort: 9300
-              name: inter-node
-          volumeMounts:
-            - name: es-config-1
-              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-              subPath: elasticsearch.yml
-            - name: ebs-claim
-              mountPath: /usr/share/elasticsearch/data
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: es-entrypoint-0
-spec:
-  selector:
-    name: es-0
-  ports:
-    - port: 9200
-      targetPort: 9200
-      protocol: TCP
-  clusterIP: None
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: es-entrypoint-1
-spec:
-  selector:
-    name: es-1
-  ports:
-    - port: 9200
-      targetPort: 9200
-      protocol: TCP
-  clusterIP: None
+  version: 7.14.0
+  nodeSets:
+  - name: node
+    count: 3
+    config:
+      network.host: 0.0.0.0
+      # node.store.allow_mmap: true
+      # xpack.security.http.ssl.enabled: false
+      # xpack.security.transport.ssl.enabled: false
+      # xpack.security.enabled: false
+      
+    podTemplate:
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+        containers:
+        - name: elasticsearch
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "30"
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ebs-sc
+        resources:
+          requests:
+            storage: 1024Gi

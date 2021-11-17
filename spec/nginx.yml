@@ -15,7 +15,7 @@ data:
           server_name  localhost;
           
           location /health {
-            proxy_pass  http://es-entrypoint-0:9200/_cluster/health;
+            proxy_pass  http://datasource-es-node:9200/_cluster/health;
           }
           # location /apm/ {
           #   proxy_pass http://apm-entrypoint:8200/;
@@ -39,7 +39,7 @@ data:
         listen  8081;
         server_name localhost;
         location /health {
-          proxy_pass  http://es-entrypoint-0:9200/_cluster/health;
+          proxy_pass  http://datasource-es-node:9200/_cluster/health;
         }
         location /es/ {
           proxy_pass  http://transform:8080/;

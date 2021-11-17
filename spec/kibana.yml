@@ -19,7 +19,7 @@ spec:
             - containerPort: 5601
           env:
             - name: ELASTICSEARCH_HOSTS
-              value: http://es-entrypoint-0:9200
+              value: http://elk-es-node:9200
             - name: SERVER_HOST
               value: 0.0.0.0
             # - name: SERVER_BASEPATH
