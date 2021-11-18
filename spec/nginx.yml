@@ -5,17 +5,29 @@ metadata:
 data:
   nginx.conf: |
     user nginx;
+    env ES_USERNAME;
+    env ES_PWD;
     worker_processes  1;
     events {
       worker_connections  10240;
     }
+
     http {
       server {
           listen       8080;
           server_name  localhost;
-          
           location /health {
-            proxy_pass  http://elk-es-http:9200/_cluster/health;
+            set_by_lua $base64_credential '
+              local es_username = os.getenv("ES_USERNAME")
+              local es_pwd = os.getenv("ES_PWD")
+              return ngx.encode_base64(es_username .. ":" .. es_pwd)
+            '
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass http://elk-es-http:9200/_cluster/health;
+            # proxy_set_header Authorization "Basic ZWxhc3RpYzpDZTkwMjZNcDBCM1hpdXFsYzU2MGd5SDQ="; 
+            proxy_set_header Authorization "Basic $base64_credential"; 
           }
           # location /apm/ {
           #   proxy_pass http://apm-entrypoint:8200/;
@@ -39,7 +51,16 @@ data:
         listen  8081;
         server_name localhost;
         location /health {
-          proxy_pass  http://elk-es-http:9200/_cluster/health;
+          set_by_lua $base64_credential '
+            local es_username = os.getenv("ES_USERNAME")
+            local es_pwd = os.getenv("ES_PWD")
+            return ngx.encode_base64(es_username .. ":" .. es_pwd)
+          '
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_pass http://elk-es-http:9200/_cluster/health;
+          proxy_set_header Authorization "Basic $base64_credential"; 
         }
         location /es/ {
           proxy_pass  http://transform:8080/;
@@ -62,9 +83,11 @@ spec:
       labels:
         name: sidecar
     spec:
+      serviceAccountName: docker-sa
       containers:
         - name: nginx
-          image: nginx:1.21.4
+          image: firesh/nginx-lua:alpine-3.4
+          # image: nginx:1.21.4
           ports:
             - name: http
               containerPort: 8080
