@@ -3,7 +3,11 @@ kind: Elasticsearch
 metadata:
   name: elk
 spec:
-  version: 7.14.0
+  version: 7.15.2
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
   nodeSets:
   - name: node
     count: 3
@@ -13,7 +17,6 @@ spec:
       # xpack.security.http.ssl.enabled: false
       # xpack.security.transport.ssl.enabled: false
       # xpack.security.enabled: false
-      
     podTemplate:
       spec:
         initContainers:

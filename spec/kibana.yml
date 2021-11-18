@@ -1,39 +1,17 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
 metadata:
   name: kibana
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: kibana
-  template:
-    metadata:
-      labels:
-        name: kibana
-    spec:
-      containers:
-        - name: kibana
-          image: kibana:7.10.1
-          ports:
-            - containerPort: 5601
-          env:
-            - name: ELASTICSEARCH_HOSTS
-              value: http://elk-es-node:9200
-            - name: SERVER_HOST
-              value: 0.0.0.0
-            # - name: SERVER_BASEPATH
-            #   value: '/kibana'
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kibana-entrypoint
-spec:
-  selector:
-    name: kibana
-  ports:
-    - port: 5601
+  version: 7.15.2
+  count: 1
+  config:
+    elasticsearch.hosts:
+      - http://elk-es-node:9200
+    elasticsearch.username: elastic
+  secureSettings:
+    - secretName: kibana-elasticsearch-credentials
+
 # ---
 # apiVersion: extensions/v1beta1
 # kind: Ingress
@@ -53,5 +31,5 @@ spec:
 #         paths:
 #           - path: /kibana*
 #             backend:
-#               serviceName: kibana-entrypoint
+#               serviceName: kibana-kb-http
 #               servicePort: 5601
