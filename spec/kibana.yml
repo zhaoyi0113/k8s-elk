@@ -9,7 +9,6 @@ spec:
     elasticsearch.hosts:
       - http://elk-es-node:9200
     elasticsearch.username: elastic
-    network.host: 0.0.0.0
   secureSettings:
     - secretName: kibana-elasticsearch-credentials
   http:

@@ -3,6 +3,8 @@
 - Deploy Elasticsearch
 
 ```bash
+kubectl apply -f storageClass.yml
+kubectl apply -f storageClaim.yml
 # install elasticsearch
 kubectl create -f https://download.elastic.co/downloads/eck/1.8.0/crds.yaml
 kubectl apply -f https://download.elastic.co/downloads/eck/1.8.0/operator.yaml
@@ -22,8 +24,10 @@ kubectl create secret docker-registry docker-secret \
 --docker-password=`aws secretsmanager get-secret-value --secret-id  dockerHub --query "SecretString" --output text|jq --raw-output -c '.password'`
 ```
 
-- Deploy kibana
+- Deploy others
 
 ```
-kubectl apply -f kinana.yml
+kubectl apply -f kibana.yml
+kubectl apply -f dockerServiceAccount.yml
+kubectl apply -f transform.yml
 ```
