@@ -2,6 +2,17 @@
 
 - Deploy Elasticsearch
 
+Install EBS Driver
+
+```bash
+
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+helm upgrade --install aws-ebs-csi-driver \
+    --namespace kube-system \
+    aws-ebs-csi-driver/aws-ebs-csi-driver
+```
+
 ```bash
 kubectl apply -f storageClass.yml
 kubectl apply -f storageClaim.yml
@@ -30,4 +41,6 @@ kubectl create secret docker-registry docker-secret \
 kubectl apply -f kibana.yml
 kubectl apply -f dockerServiceAccount.yml
 kubectl apply -f transform.yml
+kubectl apply -f alb.yml
+kubectl apply -f nginx.yml
 ```
