@@ -23,7 +23,9 @@ kubectl apply -f https://download.elastic.co/downloads/eck/1.8.0/operator.yaml
 kubectl apply -f es.yml
 ```
 
-- Create secret
+- Create secret ( Optional )
+
+This step is optional only useful when enable security in elasticsearch
 
 ```
 ESPWD=$(kubectl get secret elk-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')

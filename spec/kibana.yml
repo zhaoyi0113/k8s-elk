@@ -7,10 +7,8 @@ spec:
   count: 1
   config:
     elasticsearch.hosts:
-      - http://elk-es-node:9200
+      - http://elk-es-http:9200
     elasticsearch.username: elastic
-  secureSettings:
-    - secretName: kibana-elasticsearch-credentials
   http:
     tls:
       selfSignedCertificate:
