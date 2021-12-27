@@ -11,7 +11,7 @@ spec:
         disabled: true
   nodeSets:
   - name: node
-    count: 3
+    count: 2
     config:
       network.host: 0.0.0.0
       xpack.security.enabled: false
