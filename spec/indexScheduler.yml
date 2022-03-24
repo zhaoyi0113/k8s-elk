@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: index-scheduler
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+           - name: index-scheduler
+             image: zhaoyi0113/es-index-scheduler
+             command: ["dist/main"]
+             resources:
+               requests:
+                 cpu: 1
+                 memory: 1Gi
+             env:
+               - name: ES_HOST
+                 value: "http://elk-es-http:9200"
+               - name: RETENTION_DAY
+                 value: "7"
+               - name: INDEX_PREFIX
+                 value: "aws"
+          restartPolicy: Never
