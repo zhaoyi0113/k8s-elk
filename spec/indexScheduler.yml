@@ -4,6 +4,8 @@ metadata:
   name: index-scheduler
 spec:
   schedule: "0 0 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
       template:
