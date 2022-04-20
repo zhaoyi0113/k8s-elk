@@ -17,7 +17,7 @@ spec:
       serviceAccountName: docker-sa
       containers:
         - name: transform
-          image: zhaoyi0113/es-kinesis-firehose-transform
+          image: zhaoyi0113/es-kinesis-firehose-transform-go
           resources:
             requests:
               cpu: 1
