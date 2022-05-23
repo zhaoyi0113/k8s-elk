@@ -46,3 +46,9 @@ kubectl apply -f transform.yml
 kubectl apply -f alb.yml
 kubectl apply -f nginx.yml
 ```
+
+If ingress is failed to delete,  run:
+
+```
+kubectl patch ingress $Ingressname -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
