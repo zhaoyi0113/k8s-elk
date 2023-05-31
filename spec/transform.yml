@@ -4,7 +4,7 @@ metadata:
   name: transform
   namespace: default
 spec:
-  replicas: 3
+  replicas: 1
 
   selector:
     matchLabels:
@@ -21,10 +21,10 @@ spec:
           resources:
             requests:
               cpu: 1
-              memory: 2Gi
+              memory: 1Gi
             limits:
               cpu: 1
-              memory: 4Gi
+              memory: 1Gi
           ports:
             - containerPort: 8080
           env:
@@ -58,7 +58,7 @@ spec:
     kind: Deployment
     name: transform
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 1
   metrics:
   - type: Resource
     resource:
