@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sidecar
@@ -23,13 +23,16 @@ spec:
     - http:
         paths:
           - path: /*
+            pathType: Prefix
             backend:
-              serviceName: sidecar-entrypoint
-              servicePort: 8080
+              service:
+                name: sidecar-entrypoint
+                port:
+                  number: 8080
 
 ---
 
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sidecar-es
@@ -50,7 +53,10 @@ spec:
     - http:
         paths:
           - path: /es/*
+            pathType: Prefix
             backend:
-              serviceName: sidecar-entrypoint
-              servicePort: 8081
+              service:
+                name: sidecar-entrypoint
+                port:
+                  number: 8081
 
