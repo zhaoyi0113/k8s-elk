@@ -17,12 +17,13 @@ metadata:
     alb.ingress.kubernetes.io/auth-idp-cognito: '{"userPoolARN":"arn:aws:cognito-idp:ap-southeast-2:264100014405:userpool/ap-southeast-2_ph6pBCB2q","userPoolClientID":"5o0ms57vddgun9lgnjlj537jq1","userPoolDomain":"kibana-elk"}'
     alb.ingress.kubernetes.io/auth-scope: 'email openid aws.cognito.signin.user.admin'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:264100014405:certificate/ccb79628-6081-459d-acdb-79f875eca505
+    alb.ingress.kubernetes.io/subnets: subnet-5e8aee06,subnet-0155b249
 
 spec:
   rules:
     - http:
         paths:
-          - path: /*
+          - path: /
             pathType: Prefix
             backend:
               service:
@@ -52,7 +53,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /es/*
+          - path: /es/
             pathType: Prefix
             backend:
               service:

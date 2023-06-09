@@ -2,6 +2,12 @@
 
 - Deploy Elasticsearch
 
+Install cert manager
+
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml
+```
+
 Install EBS Driver
 
 ```bash
@@ -25,7 +31,7 @@ kubectl apply -f es.yml
 
 - Create secret ( Optional )
 
-This step is optional only useful when enable security in elasticsearch
+This step is optional only useful when enable security in elasticsearch. the username is `elastic`
 
 ```
 ESPWD=$(kubectl get secret elk-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')
