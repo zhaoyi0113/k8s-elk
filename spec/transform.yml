@@ -4,7 +4,7 @@ metadata:
   name: transform
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
 
   selector:
     matchLabels:
@@ -20,11 +20,11 @@ spec:
           image: zhaoyi0113/es-kinesis-firehose-transform-go
           resources:
             requests:
-              cpu: 1
-              memory: 1Gi
+              cpu: 0.5 
+              memory: 256Mi
             limits:
               cpu: 1
-              memory: 1Gi
+              memory: 512Mi
           ports:
             - containerPort: 8080
           env:
